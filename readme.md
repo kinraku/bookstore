@@ -13,7 +13,7 @@
 
 2) cd bookstore
 
-3) docker-compose up --build
+3) docker compose up --build
 
 4) открыть http://localhost:5002/
 
