@@ -1,17 +1,24 @@
-CREATE DATABASE IF NOT EXISTS bookstore;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_server = utf8mb4;
+SET character_set_database = utf8mb4;
+SET character_set_client = utf8mb4;
+
+CREATE DATABASE IF NOT EXISTS bookstore CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE bookstore;
 
 -- User Type
-CREATE TABLE user_type (
+CREATE TABLE IF NOT EXISTS user_type (
     id INT AUTO_INCREMENT PRIMARY KEY,
     type_name VARCHAR(100) NOT NULL
 );
 
--- User
-CREATE TABLE user (
+-- Users
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_type_id INT,
-    username VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL UNIQUE,
     first_name VARCHAR(100),
     middle_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -23,21 +30,8 @@ CREATE TABLE user (
     FOREIGN KEY (user_type_id) REFERENCES user_type(id)
 );
 
--- Address
-CREATE TABLE address (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    address_type VARCHAR(50),
-    street VARCHAR(150),
-    city VARCHAR(100),
-    postal_code VARCHAR(20),
-    house VARCHAR(50),
-    country VARCHAR(100),
-    FOREIGN KEY (user_id) REFERENCES user(id)
-);
-
--- Таблица: Product
-CREATE TABLE product (
+-- Product
+CREATE TABLE IF NOT EXISTS product (
     id INT AUTO_INCREMENT PRIMARY KEY,
     price DECIMAL(10,2) NOT NULL,
     discount DECIMAL(5,2) DEFAULT 0,
@@ -45,7 +39,7 @@ CREATE TABLE product (
 );
 
 -- Book
-CREATE TABLE book (
+CREATE TABLE IF NOT EXISTS book (
     id INT PRIMARY KEY,
     isbn VARCHAR(20) UNIQUE,
     title VARCHAR(255) NOT NULL,
@@ -60,7 +54,7 @@ CREATE TABLE book (
 );
 
 -- Author
-CREATE TABLE author (
+CREATE TABLE IF NOT EXISTS author (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100),
@@ -71,7 +65,7 @@ CREATE TABLE author (
 );
 
 -- Book-Author Relationship
-CREATE TABLE book_author (
+CREATE TABLE IF NOT EXISTS book_author (
     author_id INT,
     book_id INT,
     PRIMARY KEY (author_id, book_id),
@@ -79,15 +73,28 @@ CREATE TABLE book_author (
     FOREIGN KEY (book_id) REFERENCES book(id)
 );
 
--- Cart
-CREATE TABLE cart (
+-- Address
+CREATE TABLE IF NOT EXISTS address (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    address_type VARCHAR(50),
+    street VARCHAR(150),
+    city VARCHAR(100),
+    postal_code VARCHAR(20),
+    house VARCHAR(50),
+    country VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Таблица: Cart Item
-CREATE TABLE cart_item (
+-- Cart
+CREATE TABLE IF NOT EXISTS cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Cart Item
+CREATE TABLE IF NOT EXISTS cart_item (
     cart_id INT,
     product_id INT,
     quantity INT DEFAULT 1,
@@ -97,21 +104,21 @@ CREATE TABLE cart_item (
 );
 
 -- Order
-CREATE TABLE order_table (
+CREATE TABLE IF NOT EXISTS order_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     delivery_address_id INT,
     payment_address_id INT,
     payment_method VARCHAR(50),
-    status VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'обрабатывается',
     total_amount DECIMAL(10,2) DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (delivery_address_id) REFERENCES address(id),
     FOREIGN KEY (payment_address_id) REFERENCES address(id)
 );
 
 -- Order Item
-CREATE TABLE order_item (
+CREATE TABLE IF NOT EXISTS order_item (
     order_id INT,
     product_id INT,
     quantity INT DEFAULT 1,
@@ -121,41 +128,40 @@ CREATE TABLE order_item (
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
 
-
 -- Типы пользователей
-INSERT INTO user_type (type_name) VALUES 
-('Администратор'),
-('Пользователь');
+INSERT IGNORE INTO user_type (id, type_name) VALUES
+(1, 'Администратор'),
+(2, 'Пользователь');
 
--- Администратор 
-INSERT INTO user (user_type_id, username, first_name, last_name, password_hash, email, balance) VALUES 
-(1, 'admin', 'Admin', 'System', 'pbkdf2:sha256:260000$EEuFI2ErzyCsun8l$b67a3d3faea1fb4679f9dcb50e9d5665260c5d1ea4fbd5cd052fdee7ce26ad9f', 'admin@bookstore.ru', 0);
+-- Администратор
+INSERT IGNORE INTO users (id, user_type_id, username, first_name, last_name, password_hash, email, balance) VALUES
+(1, 1, 'admin', 'Admin', 'System', 'pbkdf2:sha256:260000$EEuFI2ErzyCsun8l$b67a3d3faea1fb4679f9dcb50e9d5665260c5d1ea4fbd5cd052fdee7ce26ad9f', 'admin@bookstore.ru', 0);
 
 -- Адрес администратора
-INSERT INTO address (user_id, address_type, street, city, postal_code, house, country) VALUES 
-(1, 'home', 'ул. Главная', 'Москва', '101000', 'д. 1', 'Россия');
+INSERT IGNORE INTO address (id, user_id, address_type, street, city, postal_code, house, country) VALUES
+(1, 1, 'home', 'ул. Главная', 'Москва', '101000', 'д. 1', 'Россия');
 
 -- Продукты
-INSERT INTO product (price, discount, product_type) VALUES 
-(380.00, 0.00, 'book'),
-(650.00, 10.00, 'book'),
-(290.00, 0.00, 'book'),
-(720.00, 5.00, 'book'),
-(420.00, 0.00, 'book'),
-(520.00, 8.00, 'book'),
-(680.00, 12.00, 'book'),
-(580.00, 7.00, 'book');
+INSERT IGNORE INTO product (id, price, discount, product_type) VALUES
+(1, 380.00, 0.00, 'book'),
+(2, 650.00, 10.00, 'book'),
+(3, 290.00, 0.00, 'book'),
+(4, 720.00, 5.00, 'book'),
+(5, 420.00, 0.00, 'book'),
+(6, 520.00, 8.00, 'book'),
+(7, 680.00, 12.00, 'book'),
+(8, 580.00, 7.00, 'book');
 
 -- Авторы
-INSERT INTO author (first_name, last_name, middle_name, birth_date, country, biography) VALUES 
-('Фёдор', 'Достоевский', 'Михайлович', '1821-11-11', 'Россия', 'Великий русский писатель, классик мировой литературы'),
-('Джоан', 'Роулинг', NULL, '1965-07-31', 'Великобритания', 'Британская писательница, автор серии о Гарри Поттере'),
-('Антуан', 'де Сент-Экзюпери', NULL, '1900-06-29', 'Франция', 'Французский писатель и летчик'),
-('Лев', 'Толстой', 'Николаевич', '1828-09-09', 'Россия', 'Великий русский писатель, мыслитель'),
-('Джордж', 'Оруэлл', NULL, '1903-06-25', 'Великобритания', 'Британский писатель и публицист');
+INSERT IGNORE INTO author (id, first_name, last_name, middle_name, birth_date, country, biography) VALUES
+(1, 'Фёдор', 'Достоевский', 'Михайлович', '1821-11-11', 'Россия', 'Великий русский писатель, классик мировой литературы'),
+(2, 'Джоан', 'Роулинг', NULL, '1965-07-31', 'Великобритания', 'Британская писательница, автор серии о Гарри Поттере'),
+(3, 'Антуан', 'де Сент-Экзюпери', NULL, '1900-06-29', 'Франция', 'Французский писатель и летчик'),
+(4, 'Лев', 'Толстой', 'Николаевич', '1828-09-09', 'Россия', 'Великий русский писатель, мыслитель'),
+(5, 'Джордж', 'Оруэлл', NULL, '1903-06-25', 'Великобритания', 'Британский писатель и публицист');
 
 -- Книги
-INSERT INTO book (id, isbn, title, publisher, publish_date, description, genre, quantity, pages, reserved_quantity) VALUES 
+INSERT IGNORE INTO book (id, isbn, title, publisher, publish_date, description, genre, quantity, pages, reserved_quantity) VALUES
 (1, '978-5-17-148992-1', 'Преступление и наказание', 'АСТ', '1866-01-01', 'Глубокий психологический роман о студенте Раскольникове', 'Классика, Психологический роман', 10, 672, 0),
 (2, '978-5-389-07435-4', 'Гарри Поттер и философский камень', 'Махаон', '1997-06-26', 'Первая книга о юном волшебнике Гарри Поттере', 'Фэнтези', 15, 432, 2),
 (3, '978-5-699-97429-5', 'Маленький принц', 'Эксмо', '1943-04-06', 'Трогательная история о мальчике с астероида Б-612', 'Философская сказка', 8, 96, 1),
@@ -166,7 +172,7 @@ INSERT INTO book (id, isbn, title, publisher, publish_date, description, genre, 
 (8, '978-5-04-105983-3', 'Анна Каренина', 'Эксмо', '1877-01-01', 'Роман о трагической любви и общественных нормах', 'Классика, Роман', 9, 864, 1);
 
 -- Связи книг и авторов
-INSERT INTO book_author (author_id, book_id) VALUES 
+INSERT IGNORE INTO book_author (author_id, book_id) VALUES
 (1, 1),
 (2, 2),
 (3, 3),
@@ -177,4 +183,5 @@ INSERT INTO book_author (author_id, book_id) VALUES
 (4, 8);
 
 -- Корзина для администратора
-INSERT INTO cart (user_id) VALUES (1);
+INSERT IGNORE INTO cart (id, user_id) VALUES
+(1, 1);

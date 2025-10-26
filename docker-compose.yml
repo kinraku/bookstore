@@ -1,28 +1,47 @@
+version: '3.8'
+
 services:
   web:
     build: .
+    container_name: flask_app
     ports:
       - "5002:5000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DATABASE_URL=mysql+mysqlconnector://bookuser:password@db/bookstore
       - SECRET_KEY=secret-key
     volumes:
       - ./static/uploads/books:/app/static/uploads/books
-      - ./database:/app/database
+    restart: unless-stopped
 
   db:
     image: mysql:8.0
+    container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: bookstore
       MYSQL_USER: bookuser
       MYSQL_PASSWORD: password
+      # без кодировки ломается текст..
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
 volumes:
   mysql_data:

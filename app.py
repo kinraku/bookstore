@@ -8,29 +8,26 @@ from datetime import datetime
 from config import Config
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.form import  Select2Widget
+from flask_admin.form import Select2Widget
 from wtforms import Form, SelectField, StringField, IntegerField, FloatField, DateField, TextAreaField
 from wtforms.validators import InputRequired, NumberRange
 
 # ждем пока бд запустится
 time.sleep(10)
-
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 
 # повторяем модели
-
 # тип пользователя
 class UserType(db.Model):
     __tablename__ = 'user_type'
     id = db.Column(db.Integer, primary_key=True)
     type_name = db.Column(db.String(100), nullable=False)
-    users = db.relationship('User', backref='user_type', lazy=True)
-
+    users = db.relationship('Users', backref='user_type', lazy=True)
 
 # пользователь
-class User(db.Model):
+class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     user_type_id = db.Column(db.Integer, db.ForeignKey('user_type.id'))
@@ -47,7 +44,6 @@ class User(db.Model):
     carts = db.relationship('Cart', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
 
-
 # адрес
 class Address(db.Model):
     __tablename__ = 'address'
@@ -60,7 +56,6 @@ class Address(db.Model):
     house = db.Column(db.String(50))
     country = db.Column(db.String(100))
 
-
 # товар
 class Product(db.Model):
     __tablename__ = 'product'
@@ -71,7 +66,6 @@ class Product(db.Model):
     book = db.relationship('Book', backref='product', uselist=False, lazy=True)
     cart_items = db.relationship('CartItem', backref='product', lazy=True)
     order_items = db.relationship('OrderItem', backref='product', lazy=True)
-
 
 # книга
 class Book(db.Model):
@@ -88,7 +82,6 @@ class Book(db.Model):
     reserved_quantity = db.Column(db.Integer, default=0)
     authors = db.relationship('Author', secondary='book_author', backref='books', lazy=True)
 
-
 # автор
 class Author(db.Model):
     __tablename__ = 'author'
@@ -100,12 +93,10 @@ class Author(db.Model):
     country = db.Column(db.String(100))
     biography = db.Column(db.Text)
 
-
 # соотношение книга-автор
 book_author = db.Table('book_author', db.Column('author_id', db.Integer, db.ForeignKey('author.id'), primary_key=True),
                        db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
                        )
-
 
 # корзина
 class Cart(db.Model):
@@ -114,14 +105,12 @@ class Cart(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     items = db.relationship('CartItem', backref='cart', lazy=True)
 
-
 # элемент корзины
 class CartItem(db.Model):
     __tablename__ = 'cart_item'
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     quantity = db.Column(db.Integer, default=1)
-
 
 # заказ
 class Order(db.Model):
@@ -137,7 +126,6 @@ class Order(db.Model):
     payment_address = db.relationship('Address', foreign_keys=[payment_address_id])
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
-
 # позиции заказа
 class OrderItem(db.Model):
     __tablename__ = 'order_item'
@@ -145,7 +133,6 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     quantity = db.Column(db.Integer, default=1)
     price_at_purchase = db.Column(db.Numeric(10, 2))
-
 
 # возвращает путь к книге для шаблонов
 def get_book_cover_path(book):
@@ -159,13 +146,11 @@ def get_book_cover_path(book):
             return f"uploads/books/{filename}"
     return None
 
-
 # защита админки
 class AdminModelView(ModelView):
     def is_accessible(self):
         user = get_current_user()
         return user and user.user_type_id == 1
-
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login'))
 
@@ -184,17 +169,15 @@ class BookForm(Form):
     authors = SelectField('Авторы', coerce=int, widget=Select2Widget())
 
 class BookModelView(AdminModelView):
-    
+
     form_columns = [
         'title', 'isbn', 'publisher', 'publish_date', 'description',
         'genre', 'quantity', 'pages', 'reserved_quantity', 'authors'
     ]
-    
-    
-    def on_model_change(self, form, model, is_created):
-        
-        return super().on_model_change(form, model, is_created)
 
+    def on_model_change(self, form, model, is_created):
+
+        return super().on_model_change(form, model, is_created)
     column_list = ['id', 'title', 'isbn', 'genre', 'quantity']
     # показ. превью обложки
     def _cover_formatter(view, context, model, name):
@@ -202,11 +185,9 @@ class BookModelView(AdminModelView):
         if cover_path:
             return f'<img src="/static/{cover_path}" style="max-height: 50px;">'
         return "Нет обложки"
-
     column_formatters = {
         'cover': _cover_formatter
     }
-
     # ковёр меняем на "обложка" в интерфейсе
     column_labels = {
         'cover': 'Обложка'
@@ -215,7 +196,7 @@ class BookModelView(AdminModelView):
 # админ панель фласка
 admin = Admin(app, name='Admin', template_mode='bootstrap3')
 admin.add_view(AdminModelView(UserType, db.session))
-admin.add_view(AdminModelView(User, db.session, name='User'))
+admin.add_view(AdminModelView(Users, db.session, name='User'))
 admin.add_view(AdminModelView(Address, db.session))
 admin.add_view(AdminModelView(Product, db.session))
 admin.add_view(BookModelView(Book, db.session, name='Book'))
@@ -223,31 +204,26 @@ admin.add_view(AdminModelView(Author, db.session))
 admin.add_view(AdminModelView(Order, db.session))
 admin.add_view(AdminModelView(OrderItem, db.session))
 
-
 # ошибки и ошибка пэйдж
 @app.errorhandler(Exception)
 def handle_exception(e):
     print(f"Произошла ошибка: {str(e)}")
     return render_template('error.html'), 500
 
-
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('error.html', error_message="Страница не найдена"), 404
-
 
 @app.route('/static/<path:subpath>')
 def static_files(subpath):
     return send_from_directory('static', subpath)
 
-
 def get_current_user():
     if 'user_id' in session:
-        user = User.query.get(session['user_id'])
+        user = Users.query.get(session['user_id'])
         if user:
             return user
     return None
-
 
 # контекстный процессор
 @app.context_processor
@@ -258,7 +234,6 @@ def inject_user():
         'get_book_cover_path': get_book_cover_path
     }
 
-
 # возвращает цену книги с уч скидки
 def get_book_price_with_discount(book):
     price = float(book.product.price)
@@ -267,9 +242,7 @@ def get_book_price_with_discount(book):
         return price * (1 - discount / 100)
     return price
 
-
 # маршруты
-
 @app.route('/')
 def index():
     books = Book.query.order_by(func.random()).limit(3).all()
@@ -298,7 +271,6 @@ def catalog():
 def contacts():
     return render_template('contacts.html')
 
-
 @app.route('/balance')
 def balance():
     user = get_current_user()
@@ -306,7 +278,6 @@ def balance():
         flash('Войдите в систему', 'error')
         return redirect(url_for('login'))
     return render_template('balance.html', user=user)
-
 
 @app.route('/add_balance', methods=['POST'])
 def add_balance():
@@ -323,19 +294,16 @@ def add_balance():
         flash('Неверная сумма', 'error')
     return redirect(url_for('balance'))
 
-
 @app.route('/book/<int:book_id>')
 def book_details(book_id):
     book = Book.query.get_or_404(book_id)
     final_price = get_book_price_with_discount(book)
     return render_template('book.html', book=book, final_price=final_price)
 
-
 @app.route('/author/<int:author_id>')
 def author_details(author_id):
     author = Author.query.get_or_404(author_id)
     return render_template('author.html', author=author)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -346,7 +314,7 @@ def register():
         first_name = request.form.get('first_name', '').strip()
         last_name = request.form.get('last_name', '').strip()
         middle_name = request.form.get('middle_name', '').strip()
-        user = User(
+        user = Users(
             user_type_id=2,
             username=username,
             email=email,
@@ -364,13 +332,12 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-        user = User.query.filter_by(username=username).first()
+        user = Users.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
             session['username'] = user.username
@@ -381,13 +348,11 @@ def login():
             flash('Неверные данные', 'error')
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Вы вышли из системы', 'info')
     return redirect(url_for('index'))
-
 
 @app.route('/add_to_cart/<int:book_id>')
 def add_to_cart(book_id):
@@ -420,7 +385,6 @@ def add_to_cart(book_id):
     flash('Книга добавлена в корзину', 'success')
     return redirect(request.referrer or url_for('catalog'))
 
-
 @app.route('/cart')
 def cart():
     user = get_current_user()
@@ -452,7 +416,6 @@ def cart():
             })
     return render_template('cart.html', items=items, total=total)
 
-
 @app.route('/update_cart/<int:book_id>', methods=['POST'])
 def update_cart(book_id):
     user = get_current_user()
@@ -476,7 +439,6 @@ def update_cart(book_id):
         db.session.commit()
     return redirect(url_for('cart'))
 
-
 @app.route('/remove_from_cart/<int:book_id>')
 def remove_from_cart(book_id):
     user = get_current_user()
@@ -490,7 +452,6 @@ def remove_from_cart(book_id):
             db.session.commit()
             flash('Книга удалена из корзины', 'info')
     return redirect(url_for('cart'))
-
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -513,7 +474,6 @@ def checkout():
                 f'Нельзя заказать {item.quantity} шт. книги "{item.product.book.title}". Доступно: {item.product.book.quantity} шт.',
                 'error')
             return redirect(url_for('cart'))
-
     # расчет общей стоимости с учетом скидок на товары
     total = 0
     items_with_prices = []
@@ -531,12 +491,10 @@ def checkout():
                 'item_total': item_total,
                 'discount': float(product.discount or 0)
             })
-
     final_total = total
     # делаем чтобы нельзя было заказать без указания адреса
     if request.method == 'POST':
         payment_method = request.form.get('payment_method', 'balance')
-
         if not payment_address:
             flash('Заполните платежный адрес в профиле для оформления заказа', 'error')
             return redirect(url_for('profile'))
@@ -546,7 +504,6 @@ def checkout():
         if payment_method == 'balance' and float(user.balance) < final_total:
             flash('Недостаточно средств на балансе', 'error')
             return redirect(url_for('checkout'))
-
         order = Order(
             user_id=user.id,
             total_amount=final_total,
@@ -556,7 +513,6 @@ def checkout():
         )
         db.session.add(order)
         db.session.flush()
-
         for item in cart_items:
             product = Product.query.get(item.product_id)
             final_price = get_book_price_with_discount(product.book)
@@ -571,21 +527,18 @@ def checkout():
         # пока только баланс
         if payment_method == 'balance':
             user.balance -= final_total
-
         CartItem.query.filter_by(cart_id=cart.id).delete()
         db.session.commit()
         flash(f'Заказ успешно оформлен! Номер заказа: #{order.id}', 'success')
         return redirect(url_for('profile'))
-
     return render_template('checkout.html', user=user, cart_items=items_with_prices, total=total,
                            final_total=final_total, payment_address=payment_address, delivery_address=delivery_address)
-
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
+    user = Users.query.get(session['user_id'])
     orders = Order.query.filter_by(user_id=session['user_id']).all()
     payment_address = Address.query.filter_by(user_id=user.id, address_type='payment').first()
     delivery_address = Address.query.filter_by(user_id=user.id, address_type='delivery').first()
@@ -661,7 +614,7 @@ def profile():
             if check_password_hash(user.password_hash, current_password):
                 new_username = request.form.get('username', '')
                 if new_username != user.username:
-                    if User.query.filter_by(username=new_username).first():
+                    if Users.query.filter_by(username=new_username).first():
                         flash('Это имя пользователя уже занято', 'error')
                     else:
                         user.username = new_username
@@ -675,33 +628,5 @@ def profile():
     return render_template('profile.html', user=user, orders=orders,
                            payment_address=payment_address, delivery_address=delivery_address)
 
-
-# создаем админа и типы пользователей
-def create_admin_user():
-    with app.app_context():
-        if not UserType.query.first():
-            user_types = [
-                UserType(type_name='Администратор'),
-                UserType(type_name='Пользователь')
-            ]
-            db.session.add_all(user_types)
-            db.session.commit()
-
-        if not User.query.filter_by(username='admin').first():
-            admin = User(
-                user_type_id=1,
-                username='admin',
-                email='admin@bookstore.ru',
-                password_hash=generate_password_hash('admin123'),
-                first_name='Admin',
-                last_name='System'
-            )
-            db.session.add(admin)
-            db.session.commit()
-
-
 if __name__ == '__main__':
-    with app.app_context():
-        create_admin_user()  
     app.run(debug=True, host='0.0.0.0', port=5000)
-
