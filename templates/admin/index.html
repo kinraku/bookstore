@@ -1,0 +1,72 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Управление контентом</h1>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Пользователи</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>User Types</strong> - Типы пользователей</p>
+                    <p><strong>User</strong> - Учетные записи пользователей</p>
+                    <p><strong>Address</strong> - Адреса пользователей</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-book"></i> Каталог</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Author</strong> - Авторы книг</p>
+                    <p><strong>Book</strong> - Книги</p>
+                    <p><strong>Product</strong> - Товары</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Заказы</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Order</strong> - Заказы пользователей</p>
+                    <p><strong>Order Item</strong> - Позиции в заказах</p>
+                    <p><strong>Cart</strong> - Корзины пользователей</p>
+                    <p><strong>Cart Item</strong> - Позиции в корзинах</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-cog"></i> Управление</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Загрузка обложек </strong>(JPG, PNG)</p>
+                    <p><strong>Скидки в %</strong></p>
+                    <p><strong>Баланс пользователей</strong> пополняется в ЛК</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> Быстрые действия:</h6>
+                <div class="mt-2">
+                    <a href="{{ url_for('book.index_view') }}" class="btn btn-primary btn-sm">Управление книгами</a>
+                    <a href="{{ url_for('user.index_view') }}" class="btn btn-secondary btn-sm">Пользователи</a>
+                    <a href="{{ url_for('order.index_view') }}" class="btn btn-success btn-sm">Заказы</a>
+                    <a href="{{ url_for('author.index_view') }}" class="btn btn-warning btn-sm">Авторы</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Контакты - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Контакты</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Наши контакты</h5>
+            </div>
+            <div class="card-body">
+                <p><strong><i class="fas fa-map-marker-alt"></i> Адрес:</strong><br>
+                г. Москва, ул. Детская, д. 19</p>
+                
+                <p><strong><i class="fas fa-phone"></i> Телефон:</strong><br>
+                +7 (495) 123-45-67</p>
+                
+                <p><strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                info@bookstore.ru</p>
+                
+                <p><strong><i class="fas fa-clock"></i> Время работы:</strong><br>
+                Пн-Пт: 9:00-21:00<br>
+                Сб-Вс: 10:00-20:00</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Как нас найти</h5>
+            </div>
+            <div class="card-body">
+                <p>Наш оффлайн магазин располагается по адресу ул. Детская, д. 19, 3-й этаж офис 505. В пяти минутах от метро "Бульвар Рокоссовского", выход №1.</p>
+                <p>В нашем магазине вы можете:</p>
+                <ul>
+                    <li>Посмотреть и полистать книжки перед покупкой</li>
+                    <li>Получить консультацию от наших специалистов</li>
+                    <li>Заказать доставку на дом</li>
+                    <li>Воспользоваться услугой подарочной упаковки для ваших особенных подарков :3</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+Flask==2.0.1
+Flask-SQLAlchemy==2.5.1
+Flask-Admin==1.6.1
+Werkzeug==2.0.1
+SQLAlchemy==1.4.46
+Jinja2==3.0.3
+mysql-connector-python==9.4.0
+WTForms==2.3.3

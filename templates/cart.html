@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Корзина - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Корзина</h1>
+
+            {% if items %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Книга</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Итого</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.book.title }}</strong><br>
+                                <small class="text-muted">
+                                    {% for author in item.book.authors %}
+                                        {{ author.first_name }} {{ author.last_name }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </small>
+                            </td>
+                            <td>
+                                {% if item.discount > 0 %}
+                                    <span class="original-price">{{ "%.2f"|format(item.original_price) }} ₽</span><br>
+                                    <span class="final-price">{{ "%.2f"|format(item.final_price) }} ₽</span>
+                                    <span class="discount-badge">-{{ "%.0f"|format(item.discount) }}%</span>
+                                {% else %}
+                                    <span class="final-price">{{ "%.2f"|format(item.final_price) }} ₽</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <form method="POST" action="{{ url_for('update_cart', book_id=item.book.id) }}" class="d-flex">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.book.quantity }}" class="form-control form-control-sm">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">✓</button>
+                                    </form>
+                                </div>
+                                <small class="text-muted">Макс: {{ item.book.quantity }}</small>
+                            </td>
+                            <td>{{ "%.2f"|format(item.total) }} ₽</td>
+                            <td>
+                                <a href="{{ url_for('remove_from_cart', book_id=item.book.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить из корзины?')">🗑️</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Общая сумма:</strong></td>
+                            <td colspan="2"><strong>{{ "%.2f"|format(total) }} ₽</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <a href="{{ url_for('catalog') }}" class="btn btn-outline-primary">Продолжить покупки</a>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg">Оформить заказ</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+                <h4>Ваша корзина пуста</h4>
+                <p>Перейдите в каталог, чтобы добавить книги в корзину.</p>
+                <a href="{{ url_for('catalog') }}" class="btn btn-primary">Перейти в каталог</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

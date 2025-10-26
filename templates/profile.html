@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Личный кабинет</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Профиль пользователя</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+                <p><strong>ФИО:</strong> {{ user.last_name }} {{ user.first_name }} {{ user.middle_name or '' }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                {% if user.phone %}
+                    <p><strong>Телефон:</strong> {{ user.phone }}</p>
+                {% endif %}
+                <p><strong>Дата регистрации:</strong> {{ user.registration_date.strftime('%d.%m.%Y') }}</p>
+                <p><strong>Баланс:</strong> {{ "%.2f"|format(user.balance) }} ₽</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Личные данные -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Личные данные</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">Имя</label>
+                            <input type="text" name="first_name" value="{{ user.first_name or '' }}" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" name="last_name" value="{{ user.last_name or '' }}" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Отчество</label>
+                            <input type="text" name="middle_name" value="{{ user.middle_name or '' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Телефон</label>
+                            <input type="text" name="phone" value="{{ user.phone or '' }}" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" value="{{ user.email }}" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <button type="submit" name="save_personal" class="btn btn-primary mt-3">Сохранить личные данные</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Адреса -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Адреса</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Платежный адрес</h6>
+                            <div class="mb-2">
+                                <label class="form-label">Улица</label>
+                                <input type="text" name="payment_street" value="{{ payment_address.street if payment_address else '' }}" class="form-control" placeholder="Введите улицу">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Город</label>
+                                    <input type="text" name="payment_city" value="{{ payment_address.city if payment_address else '' }}" class="form-control" placeholder="Город">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Дом</label>
+                                    <input type="text" name="payment_house" value="{{ payment_address.house if payment_address else '' }}" class="form-control" placeholder="Дом">
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Индекс</label>
+                                    <input type="text" name="payment_postal_code" value="{{ payment_address.postal_code if payment_address else '' }}" class="form-control" placeholder="Индекс">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Страна</label>
+                                    <input type="text" name="payment_country" value="{{ payment_address.country if payment_address else '' }}" class="form-control" placeholder="Страна">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>Адрес доставки</h6>
+                            <div class="mb-2">
+                                <label class="form-label">Улица</label>
+                                <input type="text" name="delivery_street" value="{{ delivery_address.street if delivery_address else '' }}" class="form-control" placeholder="Введите улицу">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Город</label>
+                                    <input type="text" name="delivery_city" value="{{ delivery_address.city if delivery_address else '' }}" class="form-control" placeholder="Город">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Дом</label>
+                                    <input type="text" name="delivery_house" value="{{ delivery_address.house if delivery_address else '' }}" class="form-control" placeholder="Дом">
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Индекс</label>
+                                    <input type="text" name="delivery_postal_code" value="{{ delivery_address.postal_code if delivery_address else '' }}" class="form-control" placeholder="Индекс">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Страна</label>
+                                    <input type="text" name="delivery_country" value="{{ delivery_address.country if delivery_address else '' }}" class="form-control" placeholder="Страна">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" name="save_address" class="btn btn-primary mt-3">Сохранить адреса</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Данные для входа -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Данные для входа</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Имя пользователя</label>
+                            <input type="text" name="username" value="{{ user.username }}" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Новый пароль</label>
+                            <input type="password" name="new_password" class="form-control" placeholder="Оставьте пустым чтобы не менять">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Текущий пароль для подтверждения</label>
+                            <input type="password" name="current_password" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" name="save_login" class="btn btn-primary mt-3">Сохранить данные для входа</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- История заказов -->
+        <div class="card">
+            <div class="card-header">
+                <h5>История заказов</h5>
+            </div>
+            <div class="card-body">
+                {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>№ заказа</th>
+                                    <th>Дата</th>
+                                    <th>Сумма</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>{{ "%.2f"|format(order.total_amount) }} ₽</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ order.status }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">У вас пока нет заказов.</p>
+                    <div class="text-center">
+                        <a href="{{ url_for('catalog') }}" class="btn btn-primary">Сделать первый заказ</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ author.first_name }} {{ author.last_name }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <!-- место для фотографии автора (возможно в будущем) -->
+                <div class="bg-light rounded-circle p-4 mb-3 mx-auto" style="width: 150px; height: 150px;">
+                    <i class="fas fa-user fa-3x text-muted"></i>
+                </div>
+                <h4>{{ author.first_name }} {{ author.last_name }}</h4>
+                {% if author.middle_name %}
+                    <p class="text-muted">{{ author.middle_name }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6>Информация об авторе</h6>
+            </div>
+            <div class="card-body">
+                {% if author.birth_date %}
+                    <p><strong>Дата рождения:</strong><br>{{ author.birth_date.strftime('%d.%m.%Y') }}</p>
+                {% else %}
+                    <p><strong>Дата рождения:</strong><br>Не указана</p>
+                {% endif %}
+
+                {% if author.country %}
+                    <p><strong>Страна:</strong><br>{{ author.country }}</p>
+                {% else %}
+                    <p><strong>Страна:</strong><br>Не указана</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Биография</h5>
+            </div>
+            <div class="card-body">
+                {% if author.biography %}
+                    <p>{{ author.biography }}</p>
+                {% else %}
+                    <p class="text-muted">Биография отсутствует</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Книги автора</h5>
+            </div>
+            <div class="card-body">
+                {% if author.books %}
+                    <div class="row">
+                        {% for book in author.books %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ book.title }}</h6>
+                                    <p class="card-text">
+                                        <strong>Жанр:</strong> {{ book.genre or 'Не указан' }}<br>
+                                        <strong>Цена:</strong><br>
+                                        {% if book.product.discount > 0 %}
+                                            <span class="original-price">{{ "%.2f"|format(book.product.price) }} ₽</span><br>
+                                            <span class="final-price">{{ "%.2f"|format(get_book_price_with_discount(book)) }} ₽</span>
+                                            <span class="discount-badge">-{{ "%.0f"|format(book.product.discount) }}%</span>
+                                        {% else %}
+                                            <span class="final-price">{{ "%.2f"|format(book.product.price) }} ₽</span>
+                                        {% endif %}
+                                        <br>
+                                        <strong>В наличии:</strong> {{ book.quantity }} шт.
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="{{ url_for('book_details', book_id=book.id) }}" class="btn btn-primary btn-sm">Подробнее</a>
+                                    {% if session.user_id and book.quantity > 0 %}
+                                        <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-success btn-sm">В корзину</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Книги автора отсутствуют в каталоге</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="javascript:history.back()" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Вернуться назад
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

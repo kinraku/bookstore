@@ -1,0 +1,76 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.welcome-subtitle {
+    font-size: 1.5rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    border-bottom: 3px solid #0d6efd;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.book-cover {
+    height: 350px;
+    object-fit: cover;
+}
+
+.no-cover {
+    height: 350px;
+    background: #f8f9fa;
+}
+
+.catalog-btn {
+    font-size: 1.2rem;
+}
+
+.discount-badge {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.final-price {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.balance-btn {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    font-weight: bold;
+}

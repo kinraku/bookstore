@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Оформление заказа - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Оформление заказа</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Книги в заказе</h5>
+            </div>
+            <div class="card-body">
+                {% for item in cart_items %}
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6>
+                            {% for author in item.book.authors %}
+                                {{ author.first_name }} {{ author.last_name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}:
+                            {{ item.book.title }}
+                        </h6>
+                        <p class="mb-1"><strong>Автор:</strong>
+                            {% for author in item.book.authors %}
+                                {{ author.first_name }} {{ author.last_name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        <p class="mb-1"><strong>На складе осталось:</strong> {{ item.book.quantity }}</p>
+                        <p class="mb-0">
+                            <strong>Стоимость:</strong>
+                            {% if item.discount > 0 %}
+                                <span class="text-decoration-line-through text-muted">{{ "%.2f"|format(item.product.price) }}₽</span>
+                                <span class="text-danger">{{ "%.2f"|format(item.final_price) }}₽</span>
+                                <small class="text-success">(скидка {{ "%.0f"|format(item.discount) }}%)</small>
+                            {% else %}
+                                {{ "%.2f"|format(item.final_price) }}₽
+                            {% endif %}
+                            × {{ item.quantity }} = {{ "%.2f"|format(item.item_total) }}₽
+                        </p>
+                    </div>
+                </div>
+                {% if not loop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Адреса -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Адреса</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Платежный адрес</h6>
+                        {% if payment_address %}
+                            <p class="text-success">
+                                {{ payment_address.street }}, д. {{ payment_address.house }}<br>
+                                {{ payment_address.city }}, {{ payment_address.postal_code }}<br>
+                                {{ payment_address.country }}
+                            </p>
+                        {% else %}
+                            <p class="text-danger">Заполните в профиле платежный адрес для осуществления заказа.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Адрес доставки</h6>
+                        {% if delivery_address %}
+                            <p class="text-success">
+                                {{ delivery_address.street }}, д. {{ delivery_address.house }}<br>
+                                {{ delivery_address.city }}, {{ delivery_address.postal_code }}<br>
+                                {{ delivery_address.country }}
+                            </p>
+                        {% else %}
+                            <p class="text-danger">Заполните в профиле адрес доставки для осуществления заказа.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Способ оплаты</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="checkout-form">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="balance" value="balance" checked>
+                            <label class="form-check-label" for="balance">
+                                Баланс сайта (доступно: {{ "%.2f"|format(user.balance) }}₽)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">Подтвердить заказ</button>
+                        <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary">Отменить заказ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Общая стоимость</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Товары:</span>
+                    <span>{{ "%.2f"|format(total) }}₽</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Итого:</strong>
+                    <strong>{{ "%.2f"|format(final_total) }}₽</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

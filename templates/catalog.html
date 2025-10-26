@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Каталог - Книжкин{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Каталог книг</h1>
+        
+        <form method="get" action="{{ url_for('catalog') }}" class="row g-3">
+            <div class="col-md-8">
+                <input type="text" name="q" class="form-control" placeholder="Поиск по названию, автору или жанру..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Найти</button>
+                {% if search_query %}
+                    <a href="{{ url_for('catalog') }}" class="btn btn-secondary">Сбросить</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for book in books %}
+    <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div class="card h-100">
+            {% set cover_path = get_book_cover_path(book) %}
+            {% if cover_path %}
+                <img src="{{ url_for('static', filename=cover_path) }}" alt="{{ book.title }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <span class="text-muted">Нет обложки</span>
+                </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ book.title }}</h5>
+                <p class="card-text text-muted">
+                    {% for author in book.authors %}
+                        {{ author.first_name }} {{ author.last_name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="card-text small">{{ book.genre }}</p>
+                <div class="mt-auto">
+                    {% set final_price = get_book_price_with_discount(book) %}
+                    {% if book.product.discount > 0 %}
+                        <div class="mb-2">
+                            <span class="original-price text-muted me-2">{{ "%.2f"|format(book.product.price) }} ₽</span>
+                            <span class="final-price">{{ "%.2f"|format(final_price) }} ₽</span>
+                            <span class="discount-badge">-{{ book.product.discount }}%</span>
+                        </div>
+                    {% else %}
+                        <div class="mb-2">
+                            <span class="final-price">{{ "%.2f"|format(final_price) }} ₽</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('book_details', book_id=book.id) }}" class="btn btn-outline-primary">Подробнее</a>
+                        {% if book.quantity > 0 %}
+                            <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary">В корзину</a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            {% if search_query %}
+                По запросу "{{ search_query }}" ничего не найдено.
+            {% else %}
+                В каталоге пока нет книг.
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Пополнение баланса - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Пополнение баланса</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5>Текущий баланс:
+                        {% if user and user.balance is defined %}
+                            {{ "%.2f"|format(user.balance) }} ₽
+                        {% else %}
+                            0.00 ₽
+                        {% endif %}
+                    </h5>
+                </div>
+
+                <form method="POST" action="{{ url_for('add_balance') }}">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Сумма пополнения (₽)</label>
+                        <input type="number" class="form-control" id="amount" name="amount" min="100" step="100" required>
+                        <div class="form-text">Минимальная сумма пополнения: 100 ₽</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus-circle"></i> Пополнить баланс
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

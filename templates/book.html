@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - Книжкин{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            {% set cover_path = get_book_cover_path(book) %}
+            {% if cover_path %}
+                <img src="{{ url_for('static', filename=cover_path) }}" alt="{{ book.title }}" class="img-fluid rounded book-cover">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center rounded no-cover">
+                    <span class="text-muted">Обложка отсутствует</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            
+            <div class="mb-3">
+                <strong>Авторы:</strong>
+                {% for author in book.authors %}
+                    <a href="{{ url_for('author_details', author_id=author.id) }}" class="text-decoration-none">
+                        {{ author.first_name }} {{ author.last_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}
+                    </a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <strong>Жанр:</strong> {{ book.genre }}
+            </div>
+
+            <div class="mb-3">
+                <strong>Издатель:</strong> {{ book.publisher }}
+            </div>
+
+            <div class="mb-3">
+                <strong>Дата публикации:</strong> {{ book.publish_date.strftime('%d.%m.%Y') if book.publish_date else 'Не указана' }}
+            </div>
+
+            <div class="mb-3">
+                <strong>ISBN:</strong> {{ book.isbn }}
+            </div>
+
+            <div class="mb-3">
+                <strong>Страниц:</strong> {{ book.pages }}
+            </div>
+
+            <div class="mb-4">
+                <strong>В наличии:</strong> 
+                {% if book.quantity > 0 %}
+                    <span class="text-success">{{ book.quantity }} шт.</span>
+                {% else %}
+                    <span class="text-danger">Нет в наличии</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {% if book.product.discount > 0 %}
+                    <div class="d-flex align-items-center">
+                        <span class="original-price text-muted me-3 fs-5">{{ "%.2f"|format(book.product.price) }} ₽</span>
+                        <span class="final-price me-2 fs-3">{{ "%.2f"|format(final_price) }} ₽</span>
+                        <span class="discount-badge fs-6">-{{ book.product.discount }}%</span>
+                    </div>
+                {% else %}
+                    <span class="final-price fs-3">{{ "%.2f"|format(final_price) }} ₽</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {% if book.quantity > 0 %}
+                    <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary btn-lg">Добавить в корзину</a>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>Нет в наличии</button>
+                {% endif %}
+                <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary btn-lg">Назад к каталогу</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Описание</h3>
+            <p class="lead">{{ book.description or 'Описание отсутствует.' }}</p>
+        </div>
+    </div>
+
+    {% if book.authors and book.authors[0].biography %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Об авторе</h3>
+            <p>{{ book.authors[0].biography }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
