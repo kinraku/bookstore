@@ -183,7 +183,7 @@
                                 {% for order in orders %}
                                 <tr>
                                     <td>#{{ order.id }}</td>
-                                    <td>{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>{{ order.order_date if order.order_date else 'Н/Д' }}</td>
                                     <td>{{ "%.2f"|format(order.total_amount) }} ₽</td>
                                     <td>
                                         <span class="badge bg-primary">{{ order.status }}</span>
