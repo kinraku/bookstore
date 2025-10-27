@@ -17,7 +17,7 @@
 
 4) открыть http://localhost:5002/
 
-админ: http://localhost:5002/admin  
+админ: http://localhost:5002/admin  (предварительно зайти под админом в http://localhost:5002/login)
 - логин: admin  
 - пароль: admin123
 
