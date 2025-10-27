@@ -628,5 +628,31 @@ def profile():
     return render_template('profile.html', user=user, orders=orders,
                            payment_address=payment_address, delivery_address=delivery_address)
 
+# создаем админа и типы пользователей
+def create_admin_user():
+    with app.app_context():
+        if not UserType.query.first():
+            user_types = [
+                UserType(type_name='Администратор'),
+                UserType(type_name='Пользователь')
+            ]
+            db.session.add_all(user_types)
+            db.session.commit()
+
+        if not Users.query.filter_by(username='admin').first():
+            admin = Users(
+                user_type_id=1,
+                username='admin',
+                email='admin@bookstore.ru',
+                password_hash=generate_password_hash('admin123'),
+                first_name='Admin',
+                last_name='System'
+            )
+            db.session.add(admin)
+            db.session.commit()
+
+
 if __name__ == '__main__':
+    with app.app_context():
+        create_admin_user()  
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -133,14 +133,6 @@ INSERT IGNORE INTO user_type (id, type_name) VALUES
 (1, 'Администратор'),
 (2, 'Пользователь');
 
--- Администратор
-INSERT IGNORE INTO users (id, user_type_id, username, first_name, last_name, password_hash, email, balance) VALUES
-(1, 1, 'admin', 'Admin', 'System', 'pbkdf2:sha256:260000$EEuFI2ErzyCsun8l$b67a3d3faea1fb4679f9dcb50e9d5665260c5d1ea4fbd5cd052fdee7ce26ad9f', 'admin@bookstore.ru', 0);
-
--- Адрес администратора
-INSERT IGNORE INTO address (id, user_id, address_type, street, city, postal_code, house, country) VALUES
-(1, 1, 'home', 'ул. Главная', 'Москва', '101000', 'д. 1', 'Россия');
-
 -- Продукты
 INSERT IGNORE INTO product (id, price, discount, product_type) VALUES
 (1, 380.00, 0.00, 'book'),
@@ -181,7 +173,3 @@ INSERT IGNORE INTO book_author (author_id, book_id) VALUES
 (1, 6),
 (2, 7),
 (4, 8);
-
--- Корзина для администратора
-INSERT IGNORE INTO cart (id, user_id) VALUES
-(1, 1);
