@@ -180,9 +180,6 @@ class BookModelView(AdminModelView):
         'genre', 'quantity', 'pages', 'reserved_quantity', 'authors'
     ]
 
-    def on_model_change(self, form, model, is_created):
-
-        return super().on_model_change(form, model, is_created)
     column_list = ['id', 'title', 'isbn', 'genre', 'quantity']
     # показ. превью обложки
     def _cover_formatter(view, context, model, name):
