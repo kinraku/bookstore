@@ -11,7 +11,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from wtforms import Form, SelectField, StringField, IntegerField, FloatField, DateField, TextAreaField
 from wtforms.validators import InputRequired, NumberRange
-
+from functools import cached_property
 # ждем пока бд запустится
 time.sleep(10)
 app = Flask(__name__)
@@ -148,9 +148,14 @@ def get_book_cover_path(book):
 
 # защита админки
 class AdminModelView(ModelView):
-    def is_accessible(self):
+    @cached_property
+    def _is_accessible(self):
         user = get_current_user()
         return user and user.user_type_id == 1
+    
+    def is_accessible(self):
+        return self._is_accessible
+    
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login'))
 
